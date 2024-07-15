@@ -1,0 +1,52 @@
+def negate_literal(literal):
+    """
+    Negates a literal.
+    """
+    if literal[0] == '~':
+        return literal[1:]
+    else:
+        return '~' + literal
+
+def resolve(clause1, clause2):
+    """
+    Resolves two clauses.
+    """
+    for literal1 in clause1:
+        for literal2 in clause2:
+            if literal1 == negate_literal(literal2):
+                resolvent = [lit for lit in (clause1 + clause2) if lit != literal1 and lit != literal2]
+                return resolvent
+    return None
+
+def resolution(clauses):
+    """
+    Applies resolution on a list of clauses until no new clauses can be derived.
+    """
+    new_clauses = set(map(tuple, clauses))  # Convert lists to tuples
+    while True:
+        n = len(new_clauses)
+        pairs = [(c1, c2) for c1 in new_clauses for c2 in new_clauses if c1 != c2]
+        for (c1, c2) in pairs:
+            resolvent = resolve(c1, c2)
+            if resolvent is None:
+                continue
+            if not resolvent:  # Empty clause
+                return True
+            new_clauses.add(tuple(resolvent))
+        if len(new_clauses) == n:
+            return False
+
+# Example
+clauses = [
+    ['~P', 'Q'],
+    ['~Q', 'R'],
+    ['P', 'S'],
+    ['~R', 'S'],
+    ['~P', 'R']
+]
+
+if resolution(clauses):
+    print("The given statement is entailed.")
+else:
+    print("The given statement is not entailed.")
+
